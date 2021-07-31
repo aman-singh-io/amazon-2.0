@@ -9,12 +9,12 @@ import { signIn, signOut, useSession } from 'next-auth/client'
 
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
-import { selectItems } from '../slices/basketSlice'
+import { selectQty } from '../slices/basketSlice'
 
 const Header = () => {
   const [session, loading] = useSession()
   const router = useRouter()
-  const items = useSelector(selectItems)
+  const qty = useSelector(selectQty)
   return (
     <header>
       {/* Top nav */}
@@ -51,7 +51,7 @@ const Header = () => {
               <p className='font-extrabold md:text-sm'>Account & Lists</p>
             </div>
           )}
-          <div className='link'>
+          <div className='link' onClick={() => router.push('/orders')}>
             <p>Returns</p>
             <p className='font-extrabold md:text-sm'>& Orders</p>
           </div>
@@ -60,7 +60,7 @@ const Header = () => {
             onClick={() => router.push('/checkout')}
           >
             <span className='absolute top-0 right-0 md:right-10 h-4 w-4 bg-yellow-400 text-center rounded-full text-black font-bold'>
-              {items.length}
+              {qty}
             </span>
             <ShoppingCartIcon className='h-10' />
             <p className='font-extrabold md:text-sm hidden md:inline mt-2'>

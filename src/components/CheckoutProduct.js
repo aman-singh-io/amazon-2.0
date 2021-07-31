@@ -3,7 +3,11 @@ import Image from 'next/image'
 import { StarIcon } from '@heroicons/react/solid'
 import Currency from 'react-currency-formatter'
 import { useDispatch } from 'react-redux'
-import { removeFromBasket, addToBasket } from '../slices/basketSlice'
+import {
+  removeQtyFromBasket,
+  addToBasket,
+  removeItemFromBasket,
+} from '../slices/basketSlice'
 
 function CheckoutProduct({ item }) {
   const dispatch = useDispatch()
@@ -13,9 +17,13 @@ function CheckoutProduct({ item }) {
     dispatch(addToBasket(product))
   }
 
-  const removeItemToBasket = (id) => {
+  const removeQtyItemToBasket = (id) => {
     console.log(id)
-    dispatch(removeFromBasket(id))
+    dispatch(removeQtyFromBasket(id))
+  }
+
+  const removeItemToBasket = (id) => {
+    dispatch(removeItemFromBasket(id))
   }
 
   return (
@@ -45,9 +53,19 @@ function CheckoutProduct({ item }) {
         )}
       </div>
       <div className='flex flex-col space-y-2 my-auto justify-self-end'>
-        <button className='button' onClick={addItemToBasket}>
-          Add To Basket
-        </button>
+        <div className='flex space-x-2 items-center'>
+          <button
+            className='button px-3'
+            onClick={() => removeQtyItemToBasket(item.id)}
+          >
+            -
+          </button>
+          <h1>{`Quantity: ${item.qty}`}</h1>
+          <button className='button px-3' onClick={addItemToBasket}>
+            +
+          </button>
+        </div>
+
         <button className='button' onClick={() => removeItemToBasket(item.id)}>
           Remove from Basket
         </button>
