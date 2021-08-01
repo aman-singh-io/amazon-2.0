@@ -33,42 +33,43 @@ const fullfillOrder = async (session) => {
     })
 }
 
-export default async (req, res) => {
+const handler = async (req, res) => {
   if (req.method === 'POST') {
-    const requestBuffer = await buffer(req)
-    // const payload = requestBuffer.toString()
+    const buf = await buffer(req)
     const sig = req.headers['stripe-signature']
 
-    let event
+    let stripeEvent
 
-    // Verify event posted came from stripe
     try {
-      event = stripe.webhooks.constructEvent(requestBuffer, sig, endpointSecret)
+      stripeEvent = stripe.webhooks.constructEvent(buf, sig, endpointSecret)
+      console.log('stripeEvent', stripeEvent)
     } catch (err) {
-      console.log('ERROR', err.message)
-      return res.status(400).send(`Webhook error : ${err.message}`)
+      res.status(400).send(`Webhook Error: ${err.message}`)
+      return
     }
-    res.json({ received: true })
 
-    //Handle checkout.session completed event
-
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object
+    if ('checkout.session.completed' === stripeEvent.type) {
+      const session = stripeEvent.data.object
+      console.log('payment success', session)
+      // Do something here on payment success, like update order etc.
 
       // Fulfill the order...
       return fullfillOrder(session)
         .then(() => res.status(200))
         .catch((err) => res.status(400).send(`Webhook Error ${err.message}`))
     }
+
+    res.json({ received: true })
   } else {
     res.setHeader('Allow', 'POST')
     res.status(405).end('Method Not Allowed')
   }
 }
 
+export default handler
+
 export const config = {
   api: {
     bodyParser: false,
-    externalResolver: true,
   },
 }
