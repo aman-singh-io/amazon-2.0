@@ -36,7 +36,7 @@ const fullfillOrder = async (session) => {
 export default async (req, res) => {
   if (req.method === 'POST') {
     const requestBuffer = await buffer(req)
-    const payload = requestBuffer
+    const payload = requestBuffer.toString()
     const sig = req.headers['stripe-signature']
 
     let event
