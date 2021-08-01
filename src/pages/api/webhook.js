@@ -36,18 +36,19 @@ const fullfillOrder = async (session) => {
 export default async (req, res) => {
   if (req.method === 'POST') {
     const requestBuffer = await buffer(req)
-    const payload = requestBuffer.toString()
+    // const payload = requestBuffer.toString()
     const sig = req.headers['stripe-signature']
 
     let event
 
     // Verify event posted came from stripe
     try {
-      event = stripe.webhooks.constructEvent(payload, sig, endpointSecret)
+      event = stripe.webhooks.constructEvent(requestBuffer, sig, endpointSecret)
     } catch (err) {
       console.log('ERROR', err.message)
       return res.status(400).send(`Webhook error : ${err.message}`)
     }
+    res.json({ received: true })
 
     //Handle checkout.session completed event
 
@@ -59,6 +60,9 @@ export default async (req, res) => {
         .then(() => res.status(200))
         .catch((err) => res.status(400).send(`Webhook Error ${err.message}`))
     }
+  } else {
+    res.setHeader('Allow', 'POST')
+    res.status(405).end('Method Not Allowed')
   }
 }
 
